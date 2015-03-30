@@ -5,34 +5,34 @@ import java.util.Random;
 public class Feature {
 
 	private static final int SEED = 2015;
-	private static final double WEIGHT_MODIFIER = 0.5;
+	private static final double WEIGHT_MODIFIER = 0.25;
+	private static final int NUM_FEATURE_POINTS = 4;
 
 	private boolean dummy;
 
-	private int numFeatures;
 	private int[] row;
 	private int[] col;
 	private boolean[] sign;
 	private double weight;
-	private double[] featureWeights;
+	//private double[] featureWeights;
 
-	public Feature(int width, int height, int numFeatures, boolean dummy,
-			int seedModifier) {
+	public Feature(int width, int height, boolean dummy, int seedModifier) {
 		Random random = new Random(SEED + seedModifier);
 		this.dummy = dummy;
-		this.numFeatures = numFeatures;
-		this.weight = (random.nextDouble()*2) - 1;
-		populate(width, height, numFeatures, random);
+		this.weight = (random.nextDouble() * 2) - 1;
+		populate(width, height, random);
 	}
 
-	private void populate(int width, int height, int numFeatures, Random random) {
-		row = new int[numFeatures];
-		col = new int[numFeatures];
-		sign = new boolean[numFeatures];
-		for (int index = 0; index < numFeatures; index++) {
+	private void populate(int width, int height, Random random) {
+		row = new int[NUM_FEATURE_POINTS];
+		col = new int[NUM_FEATURE_POINTS];
+		sign = new boolean[NUM_FEATURE_POINTS];
+		//featureWeights = new double[NUM_FEATURE_POINTS];
+		for (int index = 0; index < NUM_FEATURE_POINTS; index++) {
 			row[index] = random.nextInt(height);
 			col[index] = random.nextInt(width);
 			sign[index] = random.nextBoolean();
+			//featureWeights[index] = 1;
 		}
 	}
 
@@ -51,15 +51,19 @@ public class Feature {
 		int sum = 0;
 		for (int i = 0; i < 4; i++) {
 			if (image.getValue(col[i], row[i]) == sign[i]) {
-				sum++;
+				int modifier = 1;
+				if (!sign[i]) {
+					modifier = modifier * -1;
+				}
+				sum += modifier * weight;
 			}
 		}
-		return sum + weight >= 3;
+		return sum >= 3;
 	}
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder("Feature:");
-		for (int index = 0; index < numFeatures; index++) {
+		for (int index = 0; index < NUM_FEATURE_POINTS; index++) {
 			sb.append("\nPixel " + index + ": " + col[index] + "," + row[index]
 					+ " = " + sign[index]);
 		}
