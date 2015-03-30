@@ -20,13 +20,19 @@ public class PerceptronImage {
 				e.printStackTrace();
 			}
 		}
-		if (scan.nextLine().equals("Yes")) {
+		String imageType = scan.nextLine();
+		System.err.println(imageType);
+		if (imageType.equals("#Yes")) {
 			isX = true;
 		} else {
 			isX = false;
 		}
 		int width = 10;
 		int height = 10;
+		String wid = scan.next();
+		String hi = scan.next();
+		System.err.println(wid);
+		System.err.println(hi);
 		if (scan.hasNextInt()) {
 			width = scan.nextInt();
 		} else {
@@ -60,13 +66,14 @@ public class PerceptronImage {
 					values[row][col] = false;
 				}
 				col++;
-				if (col == 10){
+				if (col == width){
 					col = 0;
 					row++;
 				}
 			}
 			lineScan.close();
 		}
+		System.err.println("Is X: " + isX);
 		System.err.println(values.toString());
 	}
 	
@@ -76,5 +83,18 @@ public class PerceptronImage {
 	
 	public boolean isX(){
 		return isX;
+	}
+	
+	public String toString(){
+		StringBuilder sb = new StringBuilder("PerceptronImage:");
+		sb.append("\nIs a picture of x: " + isX);
+		for (boolean[] row : values){
+			sb.append("\n");
+			for (boolean item : row){
+				sb.append(item + "\t");
+			}
+		}
+		sb.append("\n");
+		return sb.toString();
 	}
 }
