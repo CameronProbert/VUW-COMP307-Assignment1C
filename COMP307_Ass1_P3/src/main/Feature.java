@@ -46,7 +46,7 @@ public class Feature {
 		StringBuilder sb = new StringBuilder("Feature:");
 		for (int index = 0; index < numFeatures; index++) {
 			sb.append("\nPixel " + numFeatures + ": " + col[index] + ","
-					+ row[index]);
+					+ row[index] + " = " + sign[index]);
 		}
 		return sb.toString();
 	}
