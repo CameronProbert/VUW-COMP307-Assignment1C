@@ -7,11 +7,23 @@ public class PerceptronImage {
 	private boolean[][] values;
 	private boolean isX;
 
+	/**
+	 * Creates a perceptron image from a 2D boolean array and a boolean that
+	 * states whether or not the image is an X
+	 * 
+	 * @param values
+	 * @param isX
+	 */
 	public PerceptronImage(boolean[][] values, boolean isX) {
 		this.values = values;
 		this.isX = isX;
 	}
 
+	/**
+	 * Alternative constructor for the PerceptronImage DOES NOT WORK
+	 * 
+	 * @param scan
+	 */
 	public PerceptronImage(Scanner scan) {
 		if (!scan.hasNext("#Yes") && !scan.hasNext("#other")) {
 			try {
@@ -21,18 +33,13 @@ public class PerceptronImage {
 			}
 		}
 		String imageType = scan.nextLine();
-		System.err.println(imageType);
 		if (imageType.equals("#Yes")) {
 			isX = true;
 		} else {
 			isX = false;
 		}
 		int width = 10;
-		int height = 10;
-		String wid = scan.next();
-		String hi = scan.next();
-		System.err.println(wid);
-		System.err.println(hi);
+		scan.nextLine();
 		if (scan.hasNextInt()) {
 			width = scan.nextInt();
 		} else {
@@ -43,7 +50,7 @@ public class PerceptronImage {
 			}
 		}
 		if (scan.hasNextInt()) {
-			height = scan.nextInt();
+			scan.nextInt();
 		} else {
 			try {
 				throw new Exception("int height expected");
@@ -51,7 +58,7 @@ public class PerceptronImage {
 				e.printStackTrace();
 			}
 		}
-		
+
 		int row = 0;
 		int col = 0;
 		while (scan.hasNext() && !scan.hasNext("P1")) {
@@ -66,7 +73,7 @@ public class PerceptronImage {
 					values[row][col] = false;
 				}
 				col++;
-				if (col == width){
+				if (col == width) {
 					col = 0;
 					row++;
 				}
@@ -76,21 +83,38 @@ public class PerceptronImage {
 		System.err.println("Is X: " + isX);
 		System.err.println(values.toString());
 	}
-	
-	public boolean getValue(int x, int y){
+
+	/**
+	 * Gets the value of a particular value inside the values array. Not very
+	 * robust as it does not check if the values are inside the bounds of the
+	 * array.
+	 * 
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public boolean getValue(int x, int y) {
 		return values[y][x];
 	}
-	
-	public boolean isX(){
+
+	/**
+	 * Returns whether or not the image is of an X
+	 * 
+	 * @return
+	 */
+	public boolean isX() {
 		return isX;
 	}
-	
-	public String toString(){
+
+	/**
+	 * Returns a string that represents the PerceptronImage
+	 */
+	public String toString() {
 		StringBuilder sb = new StringBuilder("PerceptronImage:");
 		sb.append("\nIs a picture of x: " + isX);
-		for (boolean[] row : values){
+		for (boolean[] row : values) {
 			sb.append("\n");
-			for (boolean item : row){
+			for (boolean item : row) {
 				sb.append(item + "\t");
 			}
 		}

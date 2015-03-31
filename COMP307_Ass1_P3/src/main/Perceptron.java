@@ -6,75 +6,127 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-
 public class Perceptron {
 
-	private static final int NUM_FEATURES = 500;
-	private static final int TIMES_TO_REPEAT = 1000;
+	// Constants
+	private static final int NUM_FEATURES = 50;
+	private static final int TIMES_TO_REPEAT = 100;
+	private static final double THRESHOLD = 1;
+	private static final double INITIAL_LEARNING_RATE = 0.5;
+	private static final double LEARNING_RATE_MODIFIER = 0.965;
+	private static final double LEARNING_RATE_MINIMUM = 0.01;
+	private static final int DEFAULT_WIDTH = 10;
+	private static final int DEFAULT_HEIGHT = 10;
 
 	private Feature[] features;
 	private List<PerceptronImage> images;
 
 	private int width;
 	private int height;
+	private double learningRate;
 
-	public Perceptron(String[] filename) {
-		width = 10;
-		height = 10;
-		File file = new File(filename[0]);
+	/**
+	 * Creates the Perceptron and trains it on the given set
+	 * 
+	 * @param filename
+	 */
+	public Perceptron(String filename) {
+		width = DEFAULT_WIDTH;
+		height = DEFAULT_HEIGHT;
+		learningRate = INITIAL_LEARNING_RATE;
+		File file = new File(filename);
 		loadImages(file);
 		createFeatures();
-		classifyImages();
-	}	
+		trainPerceptron();
+	}
 
-	private void classifyImages() {
-		double[] repPercentage = new double[TIMES_TO_REPEAT];
-		for (int repetition = 0; repetition < TIMES_TO_REPEAT; repetition++) {
+	/**
+	 * Iterates through the list of images to train the perceptron
+	 */
+	private void trainPerceptron() {
+		// Creates a log of that contains the percentage each epoch got correct
+		int numWrong = images.size();
+		int numReps = 0;
+
+		// Repeat the training process TIMES_TO_REPEAT number of times or until
+		// there are none wrong
+		for (int repetition = 0; repetition < TIMES_TO_REPEAT && numWrong != 0; repetition++) {
 			int numCorrect = 0;
-			int total = 0;
-			double previousPercentage = 0;
+
+			// Iterate through each image in the set of image
 			for (PerceptronImage image : images) {
-				int numFeaturesCorrect = 0;
+				double netInput = 0;
+
+				// Work out the net input by evaluating each feature on the
+				// image
 				for (Feature feature : features) {
-					if (feature.evaluate(image)) {
-						if (image.isX()) {
-							numFeaturesCorrect++;
-						} else {
-							feature.increaseWeight();
-						}
+					netInput += feature.evaluate(image) * feature.getWeight();
+				}
+
+				// If the image is evaluated to be an X
+				if (netInput <= 0) {
+					// If it actually is an X then record it
+					if (image.isX()) {
+						numCorrect++;
 					} else {
-						if (!image.isX()) {
-							numFeaturesCorrect++;
-						} else {
-							feature.decreaseWeight();
+						// If it is not then re-weight features
+						for (Feature feature : features) {
+							double newWeight = feature.getWeight()
+									+ feature.evaluate(image) * learningRate;
+							feature.setWeight(newWeight);
+						}
+					}
+				} else {
+					// If the image is evaluated to be not an X
+					// If it actually not an X then record it
+					if (!image.isX()) {
+						numCorrect++;
+					} else {
+						// If it is not then re-weight features
+						for (Feature feature : features) {
+							double newWeight = feature.getWeight()
+									- feature.evaluate(image) * learningRate;
+							feature.setWeight(newWeight);
 						}
 					}
 				}
-				if (numFeaturesCorrect >= NUM_FEATURES * 75.0 / 100.0) {
-					numCorrect++;
-				}
-				total++;
-				double percentage = numCorrect / (double) total;
-//				System.out.println("Total images: " + total);
-//				System.out
-//						.println("Number classified correctly: " + numCorrect);
-//				System.out.println("Percentage correct: " + percentage);
-//				System.out.println("Percentage change: " + (percentage - previousPercentage));
-				previousPercentage = percentage;
 			}
-			// System.out.println("Repetition: " + repetition);
-			// System.out.println("Total images: " + images.size());
-			// System.out.println("Number classified correctly: " + numCorrect);
-			// System.out.println("Percentage correct: " + numCorrect
-			// / (double) images.size());
-			repPercentage[repetition] = numCorrect / (double) images.size() * 100.0;
+
+			// Update the number of images wrong for this epoch
+			numWrong = images.size() - numCorrect;
+
+			// Modify the learning rate
+			if (learningRate > LEARNING_RATE_MINIMUM) {
+				learningRate *= LEARNING_RATE_MODIFIER;
+			}
+
+			numReps++;
 		}
-		System.out.println("Percentages: ");
-		for (int i = 0; i < TIMES_TO_REPEAT; i++) {
-			System.out.println(i + ": " + repPercentage[i] + "%");
+
+		// Print out the number of repetitions if the perceptron converged,
+		// otherwise print out the number of images that are still classified
+		// incorrectly
+		if (numWrong == 0) {
+			System.out.println("Perceptron converged");
+			System.out.println("Number of repetitions: " + numReps);
+		} else {
+			System.out.println("Perceptron did not converge");
+			System.out.println("Number of images still incorrect: " + numWrong);
 		}
+
+		System.out.println("\nEnding learning Rate: " + learningRate + "\n");
+		
+		for (Feature feature : features){
+			System.out.println(feature.toString());
+		}
+
 	}
 
+	/**
+	 * Initialises and populates the images array
+	 * 
+	 * @param file
+	 */
 	private void loadImages(File file) {
 		images = new ArrayList<PerceptronImage>();
 		try {
@@ -88,6 +140,12 @@ public class Perceptron {
 		}
 	}
 
+	/**
+	 * Loads a PerceptronImage from a file. Adapted from sample code.
+	 * 
+	 * @param f
+	 * @return
+	 */
 	public PerceptronImage load(Scanner f) {
 		boolean[][] newImage = null;
 		boolean isX = false;
@@ -110,21 +168,24 @@ public class Perceptron {
 		return new PerceptronImage(newImage, isX);
 	}
 
+	/**
+	 * Initialises and populates the features array
+	 */
 	private void createFeatures() {
 		features = new Feature[NUM_FEATURES];
 
 		// Create dummy feature
-		features[0] = new Feature(width, height, true, 0);
+		features[0] = new DummyFeature(width, height, 0, 0 - THRESHOLD);
 
 		// Create the rest of the features
 		for (int i = 1; i < NUM_FEATURES; i++) {
-			features[i] = new Feature(width, height, false, i);
+			features[i] = new Feature(width, height, i);
 		}
 	}
 
 	// Main
 	public static void main(String[] args) {
-		new Perceptron(args);
+		new Perceptron(args[0]);
 	}
 
 }

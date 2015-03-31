@@ -4,69 +4,92 @@ import java.util.Random;
 
 public class Feature {
 
-	private static final int SEED = 2015;
-	private static final double WEIGHT_MODIFIER = 0.25;
+	// Constants
+	private static final int SEED = 2015; // A random seed - this year
 	private static final int NUM_FEATURE_POINTS = 4;
-
-	private boolean dummy;
 
 	private int[] row;
 	private int[] col;
 	private boolean[] sign;
-	private double weight;
-	//private double[] featureWeights;
+	protected double weight;
 
-	public Feature(int width, int height, boolean dummy, int seedModifier) {
+	/**
+	 * Create a Feature with values between the given with an height and adding
+	 * the seed modifier to the random
+	 * 
+	 * @param width
+	 * @param height
+	 * @param seedModifier
+	 */
+	public Feature(int width, int height, int seedModifier) {
 		Random random = new Random(SEED + seedModifier);
-		this.dummy = dummy;
-		this.weight = (random.nextDouble() * 2) - 1;
+		this.weight = (random.nextDouble());
 		populate(width, height, random);
 	}
 
+	/**
+	 * Populates the fields
+	 * @param width
+	 * @param height
+	 * @param random
+	 */
 	private void populate(int width, int height, Random random) {
 		row = new int[NUM_FEATURE_POINTS];
 		col = new int[NUM_FEATURE_POINTS];
 		sign = new boolean[NUM_FEATURE_POINTS];
-		//featureWeights = new double[NUM_FEATURE_POINTS];
 		for (int index = 0; index < NUM_FEATURE_POINTS; index++) {
 			row[index] = random.nextInt(height);
 			col[index] = random.nextInt(width);
 			sign[index] = random.nextBoolean();
-			//featureWeights[index] = 1;
 		}
 	}
 
-	public void increaseWeight() {
-		weight += WEIGHT_MODIFIER;
+	/**
+	 * Returns the weight
+	 * @return
+	 */
+	public double getWeight() {
+		return weight;
 	}
 
-	public void decreaseWeight() {
-		weight -= WEIGHT_MODIFIER;
+	/**
+	 * Sets the weight
+	 * @param newWeight
+	 */
+	public void setWeight(double newWeight) {
+		weight = newWeight;
 	}
 
-	public boolean evaluate(PerceptronImage image) {
-		if (dummy) {
-			return true;
-		}
+	/**
+	 * Evaluates the image
+	 * @param image
+	 * @return
+	 */
+	public double evaluate(PerceptronImage image) {
 		int sum = 0;
 		for (int i = 0; i < 4; i++) {
 			if (image.getValue(col[i], row[i]) == sign[i]) {
-				int modifier = 1;
-				if (!sign[i]) {
-					modifier = modifier * -1;
-				}
-				sum += modifier * weight;
+				sum++;
 			}
 		}
-		return sum >= 3;
+		return (sum >= 3) ? 1 : 0;
 	}
 
+	/**
+	 * Returns a string that represents the feature
+	 */
 	public String toString() {
 		StringBuilder sb = new StringBuilder("Feature:");
 		for (int index = 0; index < NUM_FEATURE_POINTS; index++) {
 			sb.append("\nPixel " + index + ": " + col[index] + "," + row[index]
 					+ " = " + sign[index]);
 		}
+		if (String.valueOf(weight).length() > 5) {
+			sb.append("\nWeight: " + String.valueOf(weight).substring(0, 5));
+		} else {
+			sb.append("\nWeight: " + weight);
+		}
+		sb.append("\n");
 		return sb.toString();
 	}
 }
