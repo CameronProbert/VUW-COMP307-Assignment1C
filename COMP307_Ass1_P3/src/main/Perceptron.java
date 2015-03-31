@@ -11,9 +11,9 @@ public class Perceptron {
 	// Constants
 	private static final int NUM_FEATURES = 50;
 	private static final int TIMES_TO_REPEAT = 100;
-	private static final double THRESHOLD = 1;
-	private static final double INITIAL_LEARNING_RATE = 0.5;
-	private static final double LEARNING_RATE_MODIFIER = 0.965;
+	private static final double THRESHOLD = 0.75;
+	private static final double INITIAL_LEARNING_RATE = 1;
+	private static final double LEARNING_RATE_MODIFIER = 0.95;
 	private static final double LEARNING_RATE_MINIMUM = 0.01;
 	private static final int DEFAULT_WIDTH = 10;
 	private static final int DEFAULT_HEIGHT = 10;
