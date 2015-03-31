@@ -2,6 +2,7 @@ package main;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -103,23 +104,36 @@ public class Perceptron {
 			numReps++;
 		}
 
-		// Print out the number of repetitions if the perceptron converged,
-		// otherwise print out the number of images that are still classified
-		// incorrectly
-		if (numWrong == 0) {
-			System.out.println("Perceptron converged");
-			System.out.println("Number of repetitions: " + numReps);
-		} else {
-			System.out.println("Perceptron did not converge");
-			System.out.println("Number of images still incorrect: " + numWrong);
-		}
+		try {
+			PrintWriter writer = new PrintWriter("output.txt");
+			
+			// Print out the number of repetitions if the perceptron converged,
+			// otherwise print out the number of images that are still classified
+			// incorrectly
+			if (numWrong == 0) {
+				writer.println("Perceptron converged");
+				writer.println("Number of repetitions: " + numReps);
+				System.out.println("Perceptron converged");
+				System.out.println("Number of repetitions: " + numReps);
+			} else {
+				writer.println("Perceptron did not converge");
+				writer.println("Number of images still incorrect: " + numWrong);
+				System.out.println("Perceptron did not converge");
+				System.out.println("Number of images still incorrect: " + numWrong);
+			}
 
-		System.out.println("\nEnding learning Rate: " + learningRate + "\n");
-		
-		for (Feature feature : features){
-			System.out.println(feature.toString());
+			writer.println("\nEnding learning Rate: " + learningRate + "\n");
+			System.out.println("\nEnding learning Rate: " + learningRate + "\n");
+			
+			for (Feature feature : features){
+				System.out.println(feature.toString());
+				writer.println(feature.toString());
+			}
+			writer.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-
 	}
 
 	/**
